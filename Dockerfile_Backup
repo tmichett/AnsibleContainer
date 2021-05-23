@@ -1,0 +1,14 @@
+FROM ubi8/ubi:8.4
+
+MAINTAINER Travis Michette <tmichett@redhat.com>
+ 
+COPY ansible-2.9.15-1.el8ae.noarch.rpm sshpass-1.06-3.el8ae.x86_64.rpm openssh-clients-8.0p1-6.el8_4.2.x86_64.rpm /tmp
+#RUN yum localinstall -y /tmp/ansible-2.9.15-1.el8ae.noarch.rpm /tmp/sshpass-1.06-3.el8ae.x86_64.rpm && /tmp/openssh-clients-8.0p1-6.el8_4.2.x86_64.rpm && yum clean all
+
+RUN useradd ansible-user && \
+    echo "redhat" | passwd --stdin ansible-user
+
+USER ansible-user
+
+ENV ANSIBLE_HOST_KEY_CHECKING false
+
