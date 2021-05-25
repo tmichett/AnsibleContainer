@@ -151,3 +151,54 @@ This the above ad-hoc command will fail if the SSH keys aren't setup properly or
     "ping": "pong"
 }
 ----
+
+=== Usage on Macbook
+
+It is possible to run the container from the MacOS or with Windows using Docker Desktop.
+
+. Download the Container Image
++
+.Download the Image Locally from Quay
+[source,bash]
+----
+travis@Traviss-MacBook-Pro ~ % docker pull quay.io/tmichett/ansible
+Using default tag: latest
+latest: Pulling from tmichett/ansible
+7679c09af385: Pull complete
+cb6e50bd732a: Pull complete
+b4d8a2a1ecbc: Pull complete
+Digest: sha256:f950cb41b1a0ee9799f9f2a0bda36f62d68882d8e4aaa3ba049e9d7366eb9a0c
+Status: Downloaded newer image for quay.io/tmichett/ansible:latest
+quay.io/tmichett/ansible:latest
+----
+
+.Docker Desktop
+[IMPORTANT]
+====
+Docker Desktop must be installed in order to run the container on MacOS or Windows.
+
+https://www.docker.com/products/docker-desktop
+====
+
+. Create and Launch a Container
++
+.Running the Container
+[source,bash]
+----
+travis@Traviss-MacBook-Pro AnsibleContainer % docker run -it -v /Users/travis/Documents/Github/AnsibleContainer/volume:/ansible:Z -v /Users/travis/Documents/Github/AnsibleContainer/ssh_config:/root/.ssh:Z quay.io/tmichett/ansible /bin/bash
+
+[root@9fb02baeff32 ansible]# ansible -m ping myserver
+192.168.15.212 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+----
+
+.MacOSX Warning about Docker and Paths
+[WARNING]
+====
+In order to mount the directories from the host into the container, the *Absolute* path must be provided. Relative paths will not work and will often result in an error.
+====
