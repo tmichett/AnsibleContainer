@@ -1,2 +1,2 @@
-ssh_config/id_rsa
-ssh_config/know_hosts
+ssh_config/id_rsa*
+ssh_config/known_hosts*
