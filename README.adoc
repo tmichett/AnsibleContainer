@@ -30,3 +30,124 @@ ifdef::env-github[]
 endif::[]
 :revnumber: 1.0
 :imagesdir: images/
+
+== Ansible Container Project Purpose
+
+The purpose of this project is to provide a *DOCKERFILE* or container image to easily allow running of Ansible from a system capable of running a Linux-based container image. Users of this project can use the latest version of the pre-built container image found on Quay.io or a user can simply build their own Ansible container image.
+
+.Container User
+[IMPORTANT]
+====
+Currently, there is no container user, so the processes will run as the root user within the container. This can easily be changed with the Dockerfile and building a new container image.
+====
+
+=== Building an Ansible Container Image
+
+The container can be built and created with *podman* or *docker*. The image can be tagged and named appropriately for your local image registry.
+
+.Building the Container Image
+[source,bash]
+----
+podman build -t travis/ansible
+----
+
+==== Publishing the Image to a Registry
+
+If you wish to share the container, you need to tag it appropriately and then push the container to a public image registry.
+
+.Container Registry Login
+[TIP]
+====
+It is important to note that many registries require the user to be logged in and authenticated before being able to push images into a registry.
+====
+
+. Login to Container Registry
++
+.Logging into Image Registry
+[source,bash]
+----
+podman login quay.io
+Username: <username_here>
+Password: <password_here>
+Login Succeeded!
+----
+
+. Tag Image for Container Registry
++
+.Tagging the Container Image for Image Registry
+[source,bash]
+----
+podman tag localhost/travis/ansible quay.io/tmichett/ansible:latest
+----
+
+. Upload Image to Container Registry
++
+.Pushing Container Image into Image Registry
+[source,bash]
+----
+podman push quay.io/tmichett/ansible
+----
+
+
+=== Acquiring the Pre-Built Ansible Container Image from Quay
+
+
+== Using the Ansible Container Image
+
+The Ansible container image has been configured and setup to allow mounting of a "volume" so that playbooks and other Ansible assets like (ansible.cfg, inventory, variable files, templates, and other items) will be available within the container. The image is also setup to allow mounting of the "ssh_config" directory which can allow special SSH configurations as well as leveraging SSH keys. The image is also configured without an ENTRYPOINT or CMD so it only has the container "root user" in the */ansible* directory as the working directory. This configuration easily allows for running the container with Ansible using *_ad-hoc_* or *_ansible-playbook_* commands.
+
+.Mounting the Volume
+[NOTE]
+====
+The *volume* directory can be named anything and it will contain your Ansible project being used and leveraged by the container. This can be a stand-alone directory or it can even be your Github/Gitlab project directory for easier access. The *volume* directory must be mounted within the container to the */ansible* mount point as this is the defined location and working directory.
+====
+
+.SSH Keys and Password-less Authentication
+[WARNING]
+====
+If running the container in "shell" mode and non-interactive mode, you *must* have the SSH user setup for password-less access to the remote systems for both *_SSH_* and *_BECOME_* operations. The container image is not setup to request passwords from the CLI interface and will exit out.
+====
+
+.SSH Keys and Sudoers File
+[IMPORTANT]
+====
+It is possible to use the container image interactively by launching a BASH shell within the container. This can allow the initial creation of SSH keys and distribution of keys as well as setup of the SUDOERS file on the managed nodes. If you are creating SSH keys and leveraging Github, it is important to ignore the keys as well as known_hosts* when performing Git operations.
+====
+
+=== General Container Image Usage
+
+Assuming you are setup (meaning SSH keys, ansible.cfg, inventory, and all other files are in the *volume* directory or *ssh_config* directory) you can run the container directly to perform *ad-hoc* or *ansible-playbook* commands.
+
+.Using the containter to run an *ad-hoc* Ansible ping
+[source,bash]
+----
+[root@demo ~]# podman run -v ./volume:/ansible:Z -v /root/.ssh:/root/.ssh:Z travis/ansible ansible -m ping myserver
+192.168.15.212 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+----
+
+.SSH Keys and Sudo
+[CAUTION]
+====
+This the above ad-hoc command will fail if the SSH keys aren't setup properly or the SUDOERS file isn't configured properly for the *ansible-user* as defined by the *ansible.cfg* file. If either SSH or SUDO requires a password, the operation will fail and the container will stop. In that instance, it will be necessary to correct the issues or launch the container in an *interactive* shell instance.
+====
+
+.Using the containter to run an *ad-hoc* Ansible ping with an Interactive Shell
+[source,bash]
+----
+[root@demo ~]# podman run -it -v ./volume:/ansible:Z -v /root/.ssh:/root/.ssh:Z travis/ansible /bin/bash
+
+[root@9dfce60ed7bc ansible]# ansible -m ping myserver
+192.168.15.212 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+----
