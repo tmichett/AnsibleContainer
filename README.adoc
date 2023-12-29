@@ -203,6 +203,18 @@ travis@Traviss-MacBook-Pro AnsibleContainer % docker run -it -v /Users/travis/Do
 In order to mount the directories from the host into the container, the *Absolute* path must be provided. Relative paths will not work and will often result in an error.
 ====
 
-[FIXME]
 
-Update information for running in Windows using Podman or Docker Desktop
+== Windows Ansible Use
+
+.Launching a Container on Windows
+[source,bash]
+----
+docker pull quay.io/tmichett/ansible:aap2.4
+----
++
+[source,bash]
+----
+C:\Users\tmich\Documents\Github\AnsiblePlaybooks\Vars>docker run -it  -v C:\Users\tmich\Documents\Github\AnsiblePlaybooks\Vars:/ansible:Z quay.io/tmichett/ansible:aap2.4 /bin/bash <1>
+----
+<1> You must use the full path for the current working directory to pass to Ansible in the container
+
