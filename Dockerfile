@@ -9,7 +9,7 @@ ENV ANSIBLE_HOST_KEY_CHECKING false
 
 RUN pip3 install "ansible-lint[yamllint]" ansible-core ansible
 
-RUN mkdir /ansible
+RUN mkdir /ansible && chmod 755 /ansible
 
 WORKDIR /ansible
 
