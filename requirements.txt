@@ -1,0 +1,24 @@
+# requirements.txt
+netaddr
+ipaddress
+Jinja2
+jsonschema
+paramiko
+pexpect
+psutil
+pyOpenSSL
+pywinrm
+PyYAML
+requests
+resolvelib
+scp
+urllib3
+websocket-client
+xmltodict
+docutils
+isodate
+lockfile
+humanfriendly
+cryptography
+bcrypt
+python-gitlab
